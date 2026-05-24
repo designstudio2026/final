@@ -211,13 +211,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:
       <div class="brand-desc">다음은 지그재그가 제시하는 브랜드 이미지와 관련된 자료입니다.<br>아래 영상을 끝까지 시청한 후 다음으로 넘어가실 수 있습니다.</div>
 
       <!-- 영상 -->
-      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;background:#000;">
-        <video id="brand-video" style="width:100%;display:block;max-height:300px;border-radius:12px;" controls playsinline
-          onended="onVideoEnd()" onplay="onVideoPlay()">
-          <source src="zigzag_brand_video.mp4" type="video/mp4"/>
-          <source src="zigzag_brand_video.MP4" type="video/mp4"/>
-          브라우저가 영상을 지원하지 않아요.
-        </video>
+      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;background:#000;position:relative;padding-bottom:56.25%;height:0;">
+        <iframe id="brand-video"
+          src="https://www.youtube.com/embed/nu_pvdFHOHQ?enablejsapi=1"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          onload="setupYoutube()">
+        </iframe>
       </div>
       <div class="video-watched" id="video-watched" style="display:none;"></div>
 
@@ -448,20 +449,39 @@ function applName(text, name){
 
 // ── 브랜딩 페이지 ──────────────────────────────────────
 function goToBrand(){ showPage('page-brand'); }
+function setupYoutube(){
+  // YouTube IFrame API 로드
+  if(window.YT) { initYTPlayer(); return; }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+function onYouTubeIframeAPIReady(){
+  initYTPlayer();
+}
+function initYTPlayer(){
+  if(!window.YT || !window.YT.Player) return;
+  new YT.Player('brand-video', {
+    events: {
+      onStateChange: function(e){
+        if(e.data === YT.PlayerState.ENDED) onVideoEnd();
+        if(e.data === YT.PlayerState.PLAYING) onVideoPlay();
+      }
+    }
+  });
+}
 function onVideoEnd(){
   videoWatched = true;
-  document.getElementById('video-watched').classList.add('show');
+  document.getElementById('video-watched').style.display='none';
   document.getElementById('btn-brand-next').disabled = false;
 }
 function onVideoPlay(){
-  // 영상 재생 시작 후 10초 뒤 버튼 활성화 (fallback)
   setTimeout(()=>{
     const btn = document.getElementById('btn-brand-next');
     if(btn) btn.disabled = false;
-    document.getElementById('video-watched').classList.add('show');
   }, 10000);
 }
-// 페이지 로드 후 30초 뒤 버튼 활성화 (최후 fallback)
+// 30초 후 최후 fallback
 setTimeout(()=>{
   const btn = document.getElementById('btn-brand-next');
   if(btn) btn.disabled = false;
