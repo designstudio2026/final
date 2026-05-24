@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>지그재그 푸시 알림 설문</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --zigzag:#FF0090;
+  --zigzag-dark:#CC0072;
+  --black:#0A0A0A;
+  --white:#FFFFFF;
+  --gray-50:#F9F9F9;
+  --gray-100:#F0F0F0;
+  --gray-200:#E0E0E0;
+  --gray-400:#9E9E9E;
+  --gray-600:#616161;
+  --gray-800:#212121;
+  --radius:14px;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:100vh;color:var(--black);}
+.wrap{max-width:560px;margin:0 auto;padding:2rem 1rem 5rem;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ── 공통 카드 ── */
+.card{background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 2px 24px rgba(0,0,0,0.07);}
+
+/* ── 표지 ── */
+.cover-hero{background:var(--black);padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden;}
+.cover-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,0,144,0.25) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,0,144,0.15) 0%,transparent 50%);}
+.zigzag-logo{width:56px;height:56px;border-radius:14px;background:var(--zigzag);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;position:relative;z-index:1;}
+.zigzag-logo span{font-size:24px;font-weight:700;color:#fff;}
+.cover-title{font-size:20px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:8px;position:relative;z-index:1;}
+.cover-sub{font-size:13px;color:rgba(255,255,255,0.55);position:relative;z-index:1;line-height:1.6;}
+.cover-body{padding:1.75rem 1.75rem;}
+.cover-desc{font-size:13px;color:var(--gray-600);line-height:1.85;margin-bottom:1.5rem;}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.5rem;}
+.meta-item{background:var(--gray-50);border-radius:10px;padding:12px 14px;}
+.meta-label{font-size:10px;color:var(--gray-400);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.meta-value{font-size:13px;font-weight:600;color:var(--black);}
+.btn-primary{width:100%;padding:14px;background:var(--zigzag);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;margin-bottom:8px;}
+.btn-primary:hover{background:var(--zigzag-dark);}
+.btn-secondary{width:100%;padding:11px;background:none;color:var(--gray-400);border:1px solid var(--gray-200);border-radius:12px;font-size:13px;font-family:inherit;cursor:pointer;}
+.btn-secondary:hover{background:var(--gray-50);}
+
+/* ── 브랜딩 페이지 ── */
+.brand-header{background:var(--black);padding:1.5rem 1.75rem;display:flex;align-items:center;gap:10px;}
+.brand-header-logo{width:32px;height:32px;border-radius:8px;background:var(--zigzag);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;}
+.brand-header-title{font-size:14px;font-weight:700;color:#fff;}
+.brand-body{padding:1.75rem;}
+.brand-desc{font-size:13px;color:var(--gray-600);line-height:1.7;margin-bottom:1.25rem;}
+.brand-tagline{background:var(--black);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;text-align:center;}
+.brand-tagline p{font-size:14px;font-weight:700;color:#fff;line-height:1.6;}
+.brand-tagline p span{color:var(--zigzag);}
+.moodboard{border-radius:12px;overflow:hidden;background:var(--black);margin-bottom:1.25rem;}
+.mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;}
+.mood-cell{aspect-ratio:1;background:var(--gray-100);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gray-400);font-weight:500;overflow:hidden;}
+.mood-cell.pink{background:#FF0090;}
+.mood-cell.black{background:#0A0A0A;}
+.mood-cell.purple{background:#6B4EFF;}
+.mood-cell img{width:100%;height:100%;object-fit:cover;}
+.mood-label{padding:10px 14px;background:var(--black);}
+.mood-label p{font-size:10px;color:rgba(255,255,255,0.5);font-weight:500;text-transform:uppercase;letter-spacing:.08em;}
+.brand-keywords{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem;}
+.keyword{font-size:12px;font-weight:600;padding:5px 12px;border-radius:99px;}
+.kw-pink{background:#FFE5F3;color:#CC0072;}
+.kw-black{background:#F0F0F0;color:#212121;}
+.kw-purple{background:#EDEAFF;color:#4B2FCC;}
+.video-placeholder{background:var(--black);border-radius:12px;padding:2rem;text-align:center;margin-bottom:1.25rem;border:1.5px dashed rgba(255,255,255,0.15);}
+.video-placeholder p{font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;}
+.video-placeholder .play-icon{font-size:32px;}
+.video-watched{background:#E8F5E9;border-radius:10px;padding:10px 14px;font-size:12px;color:#2E7D32;font-weight:500;margin-bottom:1.25rem;display:none;}
+.video-watched.show{display:block;}
+.progress-check{font-size:12px;color:var(--gray-400);margin-bottom:1rem;}
+
+/* ── 이름 입력 ── */
+.name-body{padding:1.75rem;}
+.section-badge{display:inline-flex;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:10px;background:#FFE5F3;color:var(--zigzag);}
+.sec-title{font-size:17px;font-weight:700;color:var(--black);margin-bottom:6px;}
+.sec-desc{font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:1.25rem;}
+.text-input{width:100%;padding:13px 16px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--gray-50);font-size:16px;color:var(--black);font-family:inherit;outline:none;transition:border-color 0.15s,background 0.15s;}
+.text-input:focus{border-color:var(--zigzag);background:#fff;}
+.text-input::placeholder{color:var(--gray-400);}
+.input-hint{font-size:11px;color:var(--gray-400);margin-top:6px;}
+
+/* ── 진행바 ── */
+.prog-wrap{padding:.9rem 1.75rem;background:var(--gray-50);border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:10px;}
+.prog-track{flex:1;height:4px;border-radius:99px;background:var(--gray-200);overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;background:var(--zigzag);transition:width 0.4s ease;}
+.prog-label{font-size:11px;color:var(--gray-400);white-space:nowrap;}
+
+/* ── 푸시 평가 페이지 ── */
+.eval-header{background:var(--black);padding:1.25rem 1.75rem;}
+.eval-badge{font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.eval-title{font-size:14px;font-weight:700;color:#fff;}
+.eval-body{padding:1.5rem 1.75rem;}
+.situation-box{background:var(--gray-50);border-left:3px solid var(--zigzag);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--gray-600);line-height:1.7;}
+.situation-box strong{color:var(--black);}
+
+/* 아이폰 알림 */
+.notif-wrap{display:flex;justify-content:center;margin-bottom:1.5rem;}
+.notif-card{width:100%;max-width:340px;background:rgba(245,245,245,0.95);border-radius:16px;padding:14px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
+.notif-content{width:100%;}
+.notif-title{font-size:13px;font-weight:700;color:#1A1917;margin-bottom:3px;line-height:1.35;}
+.notif-body{font-size:12px;color:#3A3937;line-height:1.5;margin-bottom:3px;}
+.notif-unsub{font-size:12px;color:#9E9E9E;}
+
+/* 리커트 */
+.q-title{font-size:15px;font-weight:700;color:var(--black);margin-bottom:1rem;}
+.likert-block{margin-bottom:1.25rem;}
+.likert-q{font-size:13px;font-weight:500;color:var(--black);margin-bottom:8px;line-height:1.5;}
+.likert-scale{display:flex;flex-direction:column;gap:4px;}
+.likert-labels{display:flex;justify-content:space-between;margin-bottom:3px;}
+.likert-label{font-size:10px;color:var(--gray-400);}
+.likert-btns{display:flex;gap:5px;}
+.likert-btn{flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--gray-600);font-family:inherit;transition:all 0.12s;text-align:center;}
+.likert-btn:hover{background:var(--gray-50);}
+.likert-btn.on{background:var(--zigzag);border-color:var(--zigzag);color:#fff;}
+.divider{height:1px;background:var(--gray-100);margin:1.25rem 0;}
+.text-area{width:100%;padding:12px 14px;border:1.5px solid var(--gray-200);border-radius:10px;background:var(--gray-50);font-size:13px;color:var(--black);font-family:inherit;outline:none;min-height:80px;resize:vertical;transition:border-color 0.15s;}
+.text-area:focus{border-color:var(--zigzag);background:#fff;}
+.text-area::placeholder{color:var(--gray-400);}
+.optional-label{font-size:11px;color:var(--gray-400);margin-bottom:6px;}
+
+/* 네비 */
+.nav-row{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:1.25rem 1.75rem;border-top:1px solid var(--gray-100);}r-top:1px solid var(--gray-100);}
+.btn-back{font-size:13px;color:var(--gray-400);background:none;border:none;cursor:pointer;padding:8px 4px;font-family:inherit;}
+.btn-back:hover{color:var(--black);}
+.btn-next{font-size:14px;font-weight:700;padding:10px 28px;border-radius:10px;color:#fff;border:none;cursor:pointer;background:var(--zigzag);font-family:inherit;transition:opacity 0.15s;}
+.btn-next:disabled{opacity:0.3;cursor:default;}
+.btn-next:not(:disabled):hover{opacity:0.85;}
+
+/* 완료 */
+.done-wrap{text-align:center;padding:3.5rem 2rem;}
+.done-icon{font-size:48px;margin-bottom:1rem;}
+.done-title{font-size:22px;font-weight:700;color:var(--black);margin-bottom:8px;}
+.done-sub{font-size:14px;color:var(--gray-600);line-height:1.7;}
+
+/* 리서처 */
+.researcher-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 24px rgba(0,0,0,0.07);}
+.researcher-header{background:var(--black);padding:1.5rem 1.75rem;display:flex;align-items:center;justify-content:space-between;}
+.researcher-title{font-size:15px;font-weight:700;color:#fff;}
+.researcher-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--zigzag);color:#fff;}
+.researcher-body{padding:1.5rem 1.75rem;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem;}
+.stat-card{background:var(--gray-50);border-radius:10px;padding:14px;text-align:center;}
+.stat-num{font-size:24px;font-weight:700;color:var(--black);}
+.stat-lbl{font-size:11px;color:var(--gray-400);margin-top:2px;}
+.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem;}
+.tab-btn{padding:6px 14px;font-size:12px;font-weight:600;font-family:inherit;border:1.5px solid var(--gray-200);border-radius:99px;background:none;color:var(--gray-600);cursor:pointer;transition:all 0.12s;}
+.tab-btn.on{background:var(--black);color:#fff;border-color:var(--black);}
+.r-label{font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;}
+.result-table{width:100%;border-collapse:collapse;font-size:12px;}
+.result-table th{text-align:left;font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--gray-100);}
+.result-table td{padding:8px 8px;border-bottom:1px solid var(--gray-50);color:var(--gray-800);vertical-align:top;}
+.bar-row{display:flex;align-items:center;gap:6px;}
+.bar-track{flex:1;height:4px;border-radius:99px;background:var(--gray-100);}
+.bar-fill-el{height:100%;border-radius:99px;background:var(--zigzag);}
+.bar-pct{font-size:11px;color:var(--gray-400);min-width:30px;text-align:right;}
+.resp-item{background:var(--gray-50);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:12px;}
+.resp-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:5px;}
+.resp-detail{color:var(--gray-600);line-height:1.6;}
+.empty-state{font-size:13px;color:var(--gray-400);text-align:center;padding:24px 0;}
+.loading-state{font-size:13px;color:var(--gray-400);text-align:center;padding:16px 0;}
+.score-cell{text-align:center;padding:6px 4px;}
+.score-hi{color:#1B5E20;font-weight:600;}
+.score-mid{color:#E65100;font-weight:600;}
+.score-lo{color:#B71C1C;font-weight:600;}
+.login-body{padding:1.75rem;}
+.login-error{font-size:12px;color:#C0392B;margin-top:6px;display:none;}
+.btn-logout{width:100%;padding:10px;background:none;color:var(--gray-400);border:1px solid var(--gray-200);border-radius:10px;font-size:13px;font-family:inherit;cursor:pointer;margin-top:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── 표지 ── -->
+<div class="page active" id="page-cover">
+  <div class="card">
+    <div class="cover-hero">
+      <div class="zigzag-logo"><span>Z</span></div>
+      <div class="cover-title">지그재그 푸시 알림<br>UX 라이팅 설문</div>
+      <div class="cover-sub">홍익대학교 디자인리서치(1) · 김나영 손승범 어영은</div>
+    </div>
+    <div class="cover-body">
+      <div class="cover-desc">안녕하세요, 홍익대학교에서 디자인리서치(1) 수업을 수강 중인 김나영, 손승범, 어영은입니다.<br><br>저희 팀은 여성 패션 쇼핑 애플리케이션 지그재그(Zigzag)의 푸시 알림 UX 라이팅을 주제로 디자인 리서치 프로젝트를 진행하고 있습니다.<br><br>저희는 지그재그가 현재 발송하고 있는 푸시 알림의 표현 방식이 브랜드가 추구하는 이미지와 어긋난다는 문제의식에서 프로젝트를 시작했습니다. 이에 저희 팀은 브랜드 이미지에 부합하면서도 사용자가 편안하게 받아들일 수 있는 UX 라이팅 방식을 새롭게 정립하고, 이를 바탕으로 푸시 알림 문구를 직접 재작성했습니다.<br><br>본 설문은 저희가 제안한 푸시 알림 문구가 지그재그의 브랜드 이미지와 얼마나 잘 어울리는지, 그리고 사용자로서 얼마나 편안하게 느껴지는지를 확인하기 위해 진행됩니다.<br><br>설문은 약 5~7분 정도 소요되며, 응답해 주신 모든 내용은 익명으로 처리되어 연구 목적으로만 활용됩니다.</div>
+      <div class="cover-meta">
+        <div class="meta-item"><div class="meta-label">소요시간</div><div class="meta-value">5~7분</div></div>
+        <div class="meta-item"><div class="meta-label">평가 항목</div><div class="meta-value">8개 푸시</div></div>
+        <div class="meta-item"><div class="meta-label">익명 처리</div><div class="meta-value">완전 익명</div></div>
+        
+      </div>
+      <button class="btn-primary" onclick="goToBrand()">설문 시작하기 →</button>
+      <button class="btn-secondary" onclick="showPage('page-login')">리서처 로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 브랜딩 자료 ── -->
+<div class="page" id="page-brand">
+  <div class="card">
+    <div class="brand-header">
+      <div class="brand-header-logo">Z</div>
+      <div class="brand-header-title">지그재그 브랜드 이미지</div>
+    </div>
+    <div class="brand-body">
+      <div class="brand-desc">다음은 지그재그가 제시하는 브랜드 이미지와 관련된 자료입니다.<br>아래 영상을 끝까지 시청한 후 다음으로 넘어가실 수 있습니다.</div>
+
+      <!-- 영상 -->
+      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;background:#000;">
+        <video id="brand-video" style="width:100%;display:block;max-height:300px;border-radius:12px;" controls playsinline
+          onended="onVideoEnd()" onplay="onVideoPlay()">
+          <source src="더_넓어진_직잭에서__새로운_나를_발견하세요.MP4" type="video/mp4"/>
+          <source src="더_넓어진_직잭에서__새로운_나를_발견하세요.mp4" type="video/mp4"/>
+          브라우저가 영상을 지원하지 않아요.
+        </video>
+      </div>
+      <div class="video-watched" id="video-watched" style="display:none;"></div>
+
+      <!-- 브랜딩 이미지 -->
+      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;">
+        <img src="zigzag_brand1.png" style="width:100%;display:block;" alt="지그재그 브랜드 슬로건"/>
+      </div>
+      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;">
+        <img src="zigzag_moodboard.png" style="width:100%;display:block;" alt="지그재그 리브랜딩 비주얼"/>
+      </div>
+
+      
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="showPage('page-cover')" style="flex:1;padding:14px;font-size:15px;font-weight:700;border-radius:12px;">← 이전</button>
+        <button class="btn-primary" id="btn-brand-next" onclick="goToName()" disabled style="flex:1;padding:14px;">다음 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 이름 입력 ── -->
+<div class="page" id="page-name">
+  <div class="card">
+    <div class="brand-header">
+      <div class="brand-header-logo">Z</div>
+      <div class="brand-header-title">참가자 이름 입력</div>
+    </div>
+    <div class="name-body">
+      <div class="section-badge">이름 입력</div>
+      <div class="sec-title">이름을 입력해주세요</div>
+      <div class="sec-desc">입력하신 이름은 푸시 알림 예시에 반영됩니다. 개인정보 수집에 사용되지 않습니다.</div>
+      <input class="text-input" id="name-input" type="text" placeholder="길동" maxlength="10"
+        oninput="onNameInput()" onkeydown="if(event.key==='Enter')goToSurvey()"/>
+      <div class="input-hint">성을 제외한 이름만 입력해 주세요. 예) 길동</div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="showPage('page-brand')">← 이전</button>
+      <button class="btn-next" id="btn-name-next" onclick="goToSurvey()" disabled>시작하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 평가 페이지 (동적) ── -->
+<div class="page" id="page-eval">
+  <div class="card">
+    <div class="eval-header">
+      <div class="eval-badge" id="eval-badge"></div>
+      <div class="eval-title" id="eval-title"></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <span class="prog-label" id="prog-label">1 / 8</span>
+    </div>
+    <div class="eval-body" id="eval-body"></div>
+    <div class="nav-row">
+      <button class="btn-secondary" id="eval-back" onclick="evalPrev()" style="flex:1;padding:14px;font-size:15px;font-weight:700;border-radius:12px;">← 이전</button>
+      <button class="btn-next" id="eval-next" onclick="evalNext()" disabled style="flex:1;">다음</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 완료 ── -->
+<div class="page" id="page-done">
+  <div class="card">
+    <div class="done-wrap">
+      <div class="done-icon">🎉</div>
+      <div class="done-title">설문이 완료됐어요!</div>
+      <div class="done-sub">소중한 응답 감사드립니다.<br></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 리서처 로그인 ── -->
+<div class="page" id="page-login">
+  <div class="card">
+    <div class="login-body">
+      <div class="sec-title" style="margin-bottom:6px;">🔒 리서처 로그인</div>
+      <div class="sec-desc">비밀번호를 입력해주세요.</div>
+      <input type="password" class="text-input" id="pw-input" placeholder="비밀번호"
+        onkeydown="if(event.key==='Enter')checkPw()" style="margin-bottom:6px;"/>
+      <div class="login-error" id="login-error">비밀번호가 틀렸습니다.</div>
+      <button class="btn-primary" onclick="checkPw()" style="margin-top:12px;">로그인</button>
+      <button class="btn-secondary" onclick="showPage('page-cover')" style="margin-top:6px;">← 돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 리서처 대시보드 ── -->
+<div class="page" id="page-researcher">
+  <div class="researcher-card">
+    <div class="researcher-header">
+      <span class="researcher-title">📊 설문 결과 대시보드</span>
+      <span class="researcher-badge">RESEARCHER</span>
+    </div>
+    <div class="researcher-body">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="r-total">-</div><div class="stat-lbl">총 응답</div></div>
+        <div class="stat-card"><div class="stat-num" id="r-today">-</div><div class="stat-lbl">오늘 응답</div></div>
+        <div class="stat-card"><div class="stat-num" id="r-avg">-</div><div class="stat-lbl">전체 평균</div></div>
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn on" onclick="switchRTab(this,'overview')">문항별 평균</button>
+        <button class="tab-btn" onclick="switchRTab(this,'responses')">개별 응답</button>
+      </div>
+      <div id="r-content"><div class="loading-state">데이터 불러오는 중...</div></div>
+      <button class="btn-logout" onclick="showPage('page-cover')">← 나가기</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── Firebase ────────────────────────────────────────────
+const FB_API_KEY   = 'AIzaSyDmCVLqRdQoQzZVlX6guwWjajDdTtmQ4j0';
+const FB_PROJECT   = 'push-survey2';
+const FB_COL       = 'zigzag_survey';
+const RESEARCHER_PW = '1234';
+
+let _db = null;
+async function getDb(){
+  if(_db) return _db;
+  const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  const { getFirestore, collection, addDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const app = getApps().length ? getApps()[0] : initializeApp({
+    apiKey: FB_API_KEY, projectId: FB_PROJECT,
+    authDomain: FB_PROJECT+'.firebaseapp.com'
+  });
+  _db = { fs: getFirestore(app), collection, addDoc, getDocs };
+  return _db;
+}
+async function fbSave(payload){
+  try{ const db=await getDb(); await db.addDoc(db.collection(db.fs, FB_COL), payload); }
+  catch(e){ console.error('저장 오류',e); }
+}
+async function fbLoad(){
+  try{
+    const db=await getDb();
+    const snap=await db.getDocs(db.collection(db.fs, FB_COL));
+    return snap.docs.map(d=>({...d.data(), _id:d.id}));
+  }catch(e){ console.error('로드 오류',e); return []; }
+}
+
+// ── 설문 데이터 ────────────────────────────────────────
+const PUSHES = [
+  {
+    id:'p1', label:'장바구니 쿠폰 알림',
+    situation:'어제 지그재그 앱을 둘러보며 마음에 드는 상품을 장바구니에 담아두었습니다. 다음 날 오전, 지그재그로부터 아래와 같은 푸시 알림을 받았습니다.',
+    title:'장바구니 속 쿠폰이 적용되는 상품이 있어요!',
+    body:'(광고) @@이 담아두신 관심 상품의 혜택을 확인해 보세요. 지금 적용 가능한 스토어 쿠폰이 있어요 🎫',
+  },
+  {
+    id:'p2', label:'데님 스타일 추천',
+    situation:'최근 지그재그에서 청바지와 데님 재킷 등 데님 패션 아이템을 여러 번 검색하고 살펴보았습니다. 얼마 후, 지그재그로부터 아래와 같은 추천 알림을 받았습니다.',
+    title:'최근 보신 데님 스타일, 더 보여드릴게요!',
+    body:'(광고) @@이 최근 관심 있게 살펴보신 데님 컬렉션. 체형에 맞게 매치하기 좋은 캐주얼 웨어를 소개할게요',
+  },
+  {
+    id:'p3', label:'즐겨찾기 브랜드 신상',
+    situation:'평소 즐겨찾기 해두고 자주 구경하던 브랜드에서 여름 신상품을 출시했습니다. 지그재그가 이를 알리기 위해 보낸 문구입니다.',
+    title:'@@을 위한 여름 아이템을 소개해요 ⛱️',
+    body:'(광고) @@의 스타일에 맞춘 새로운 브랜드 큐레이션. 선호하시는 무드의 여름 에센셜 아이템을 제안해요.',
+  },
+  {
+    id:'p4', label:'브랜드 위크 세일',
+    situation:'지그재그에서 대규모 브랜드 위크 세일 행사가 시작되었습니다. 사용자에게 발송되는 대형 이벤트 알림이 왔습니다.',
+    title:'최대 80% 할인받는 브랜드 위크가 오픈했어요 🎫',
+    body:'(광고) 지그재그 기획전 오픈! 22일까지 진행되는 브랜드 위크에서 최대 80% 할인을 적용해 보세요.',
+  },
+  {
+    id:'p5', label:'쿠폰 만료 리마인드',
+    situation:'발급받아두었던 할인 쿠폰의 사용 기한이 얼마 남지 않았습니다. 만료 당일, 지그재그로부터 아래와 같은 리마인드 알림을 받았습니다.',
+    title:'쿠폰 만료일을 알려드려요',
+    body:'(광고) 발급받으신 10% 웰컴 쿠폰이 오늘 밤 12시까지 유지돼요. 확인하시고 혜택 받아가세요!',
+  },
+  {
+    id:'p6', label:'배송 완료 후 리뷰 요청',
+    situation:'주문한 상품이 무사히 집 앞으로 배송 완료되었습니다. 배송 후, 지그재그로부터 아래와 같은 리뷰 작성 안내 알림을 받았습니다.',
+    title:'주문하신 상품의 리뷰를 남겨주세요',
+    body:'(광고) @@, 리뷰를 작성하시면 포인트 2,000점이 적립돼요. 상품 도착 후 7일 이내 작성할 수 있어요.',
+  },
+  {
+    id:'p7', label:'구매 확정 요청',
+    situation:'상품 배송이 완료되었으나, 아직 구매 확정 버튼을 누르지 않은 상태입니다. 이때 지그재그로부터 아래와 같은 알림을 받았습니다.',
+    title:'주문하신 상품의 구매를 확정해 주세요!',
+    body:'(광고) @@, 주문하신 상품의 배송이 완료되었어요. 상품을 확인하신 후 구매 확정하면 200포인트 적립해드려요!',
+  },
+  {
+    id:'p8', label:'출석체크 독려',
+    situation:'최근 며칠간 지속적으로 지그재그 앱에 접속하지 않았습니다. 앱 접속과 출석체크를 독려하기 위해 어플리케이션으로부터 알림을 받았습니다.',
+    title:'@@, 출석체크하고 포인트 받아가세요!',
+    body:'(광고) 오늘 접속하시면 100포인트를 받을 수 있어요. 클릭하면 출석체크 페이지로 이동해요.',
+  },
+];
+
+const LIKERT_QS = [
+  { id:'trust',      q:'나는 이 광고가 신뢰할만 하다고 생각한다.' },
+  { id:'honest',     q:'나는 이 광고가 과장되지 않는다고 생각한다.' },
+  { id:'discomfort', q:'해당 푸시 알림을 경험하면서 감정적으로 불편함을 느꼈다.' },
+  { id:'care',       q:'앱에서 접한 푸시 알림은 나를 배려한다.' },
+  { id:'tone',       q:'브랜드 푸시 알림의 톤은 일관된 분위기를 전달한다고 느꼈다.' },
+  { id:'brand',      q:'브랜드 경험은 내가 생각하는 브랜드 이미지와 부합한다.' },
+  { id:'click',      q:'나는 이 푸시 알림을 클릭해보고 싶다.' },
+  { id:'visit',      q:'나는 해당 앱을 방문해보고 싶다.' },
+  { id:'info',       q:'이 광고는 제품/서비스 이해에 도움을 준다.' },
+  { id:'decision',   q:'이 광고는 나의 구매 의사결정에 실질적 도움을 준다.' },
+];
+
+// ── 상태 ──────────────────────────────────────────────
+let userName = '';
+let evalIdx = 0;
+let answers = []; // [{trust:3, honest:4, ..., comment:''}, ...]
+let videoWatched = false;
+let rTab = 'overview';
+let allResponses = [];
+
+// ── 유틸 ──────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function firstName(name){ return name.length>=2?name.slice(1):name; }
+function applName(text, name){
+  return text.replace(/@@/g, name+'님');
+}
+
+// ── 브랜딩 페이지 ──────────────────────────────────────
+function goToBrand(){ showPage('page-brand'); }
+function onVideoEnd(){
+  videoWatched = true;
+  document.getElementById('video-watched').classList.add('show');
+  document.getElementById('btn-brand-next').disabled = false;
+}
+function onVideoPlay(){
+  // 영상 재생 시작 후 10초 뒤 버튼 활성화 (fallback)
+  setTimeout(()=>{
+    const btn = document.getElementById('btn-brand-next');
+    if(btn) btn.disabled = false;
+    document.getElementById('video-watched').classList.add('show');
+  }, 10000);
+}
+// 페이지 로드 후 30초 뒤 버튼 활성화 (최후 fallback)
+setTimeout(()=>{
+  const btn = document.getElementById('btn-brand-next');
+  if(btn) btn.disabled = false;
+}, 30000);
+
+// ── 이름 입력 ──────────────────────────────────────────
+function goToName(){ showPage('page-name'); }
+function onNameInput(){
+  const val = document.getElementById('name-input').value.trim();
+  document.getElementById('btn-name-next').disabled = val.length===0;
+}
+function goToSurvey(){
+  const val = document.getElementById('name-input').value.trim();
+  if(!val) return;
+  userName = val;
+  answers = PUSHES.map(()=>{
+    const a={}; LIKERT_QS.forEach(q=>a[q.id]=null); a.comment=''; return a;
+  });
+  evalIdx = 0;
+  renderEval();
+  showPage('page-eval');
+}
+
+// ── 평가 페이지 ────────────────────────────────────────
+function isEvalDone(){
+  return LIKERT_QS.every(q=>answers[evalIdx][q.id]!==null);
+}
+function renderEval(){
+  const push = PUSHES[evalIdx];
+  const ans = answers[evalIdx];
+  document.getElementById('eval-badge').textContent = `${evalIdx+1} / ${PUSHES.length}`;
+  document.getElementById('eval-title').textContent = push.label;
+  document.getElementById('prog-fill').style.width = Math.round((evalIdx/PUSHES.length)*100)+'%';
+  document.getElementById('prog-label').textContent = `${evalIdx+1} / ${PUSHES.length}`;
+  document.getElementById('eval-back').style.opacity = evalIdx===0?'0':'1';
+  document.getElementById('eval-back').style.pointerEvents = evalIdx===0?'none':'auto';
+  const nb = document.getElementById('eval-next');
+  nb.textContent = evalIdx===PUSHES.length-1?'제출하기':'다음';
+  nb.disabled = !isEvalDone();
+
+  const body = document.getElementById('eval-body');
+  body.innerHTML = '';
+
+  // 상황 설명
+  const sitBox = document.createElement('div'); sitBox.className='situation-box';
+  sitBox.innerHTML = '<strong>상황</strong><br>'+push.situation;
+  body.appendChild(sitBox);
+
+  // 알림 카드
+  const nWrap = document.createElement('div'); nWrap.className='notif-wrap';
+  const nCard = document.createElement('div'); nCard.className='notif-card';
+  nCard.innerHTML=`
+    <div class="notif-content">
+      <div class="notif-title">${applName(push.title, userName)}</div>
+      <div class="notif-body">${applName(push.body, userName)}</div>
+      <div class="notif-unsub">수신거부: MY &gt; 설정</div>
+    </div>`;
+  nWrap.appendChild(nCard); body.appendChild(nWrap);
+
+  // 리커트
+  const qtitle = document.createElement('div'); qtitle.className='q-title'; qtitle.textContent='아래 문항에 응답해주세요.'; body.appendChild(qtitle);
+
+  LIKERT_QS.forEach(q=>{
+    const block=document.createElement('div'); block.className='likert-block';
+    const qt=document.createElement('div'); qt.className='likert-q'; qt.textContent=q.q; block.appendChild(qt);
+    const lblRow=document.createElement('div'); lblRow.className='likert-labels';
+    lblRow.innerHTML='<span class="likert-label">전혀 그렇지 않다</span><span class="likert-label">매우 그렇다</span>';
+    block.appendChild(lblRow);
+    const btns=document.createElement('div'); btns.className='likert-btns';
+    [1,2,3,4,5].forEach(v=>{
+      const btn=document.createElement('button'); btn.className='likert-btn'+(ans[q.id]===v?' on':'');
+      btn.textContent=v;
+      btn.onclick=()=>{ ans[q.id]=v; renderEval(); };
+      btns.appendChild(btn);
+    });
+    block.appendChild(btns); body.appendChild(block);
+  });
+
+  // 주관식
+  const div=document.createElement('div'); div.className='divider'; body.appendChild(div);
+  const ol=document.createElement('div'); ol.className='optional-label'; ol.textContent='자유롭게 의견을 남겨주세요 (선택)'; body.appendChild(ol);
+  const ta=document.createElement('textarea'); ta.className='text-area'; ta.placeholder='이 알림에 대한 생각을 자유롭게 적어주세요.'; ta.value=ans.comment;
+  ta.oninput=()=>{ ans.comment=ta.value; };
+  body.appendChild(ta);
+}
+
+function evalPrev(){
+  if(evalIdx>0){ evalIdx--; renderEval(); }
+}
+function evalNext(){
+  if(!isEvalDone()) return;
+  if(evalIdx<PUSHES.length-1){ evalIdx++; renderEval(); window.scrollTo(0,0); }
+  else submitSurvey();
+}
+
+// ── 제출 ──────────────────────────────────────────────
+async function submitSurvey(){
+  const payload={ submittedAt:new Date().toISOString(), firstName:firstName(userName) };
+  PUSHES.forEach((p,i)=>{
+    const ans=answers[i];
+    LIKERT_QS.forEach(q=>{ payload[p.id+'_'+q.id]=ans[q.id]; });
+    payload[p.id+'_comment']=ans.comment||'';
+  });
+  await fbSave(payload);
+  showPage('page-done');
+}
+
+// ── 리서처 ────────────────────────────────────────────
+function checkPw(){
+  if(document.getElementById('pw-input').value===RESEARCHER_PW){
+    document.getElementById('login-error').style.display='none';
+    document.getElementById('pw-input').value='';
+    showPage('page-researcher');
+    loadResearcher();
+  } else {
+    document.getElementById('login-error').style.display='block';
+  }
+}
+async function loadResearcher(){
+  document.getElementById('r-content').innerHTML='<div class="loading-state">데이터 불러오는 중...</div>';
+  allResponses = await fbLoad();
+  renderResearcher();
+}
+function switchRTab(btn, tab){
+  rTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderResearcher();
+}
+function scoreColor(v){
+  if(!v&&v!==0) return '';
+  if(v>=4) return 'score-hi';
+  if(v>=3) return 'score-mid';
+  return 'score-lo';
+}
+function renderResearcher(){
+  const rs=allResponses;
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('r-total').textContent=rs.length;
+  document.getElementById('r-today').textContent=rs.filter(r=>(r.submittedAt||'').slice(0,10)===today).length;
+
+  // 전체 평균
+  let allScores=[];
+  rs.forEach(r=>{ PUSHES.forEach(p=>{ LIKERT_QS.forEach(q=>{ const v=r[p.id+'_'+q.id]; if(typeof v==='number') allScores.push(v); }); }); });
+  const avg=allScores.length?(allScores.reduce((a,b)=>a+b,0)/allScores.length).toFixed(2):'-';
+  document.getElementById('r-avg').textContent=avg;
+
+  const el=document.getElementById('r-content'); el.innerHTML='';
+  if(rTab==='overview') renderROverview(el,rs);
+  else renderRResponses(el,rs);
+}
+
+function renderROverview(el, rs){
+  if(!rs.length){ el.innerHTML='<div class="empty-state">아직 응답이 없습니다.</div>'; return; }
+  const qShort=['신뢰','과장없음','불편↓','배려','톤일관','브랜드','클릭','방문','정보','결정'];
+
+  PUSHES.forEach(p=>{
+    const label=document.createElement('div'); label.className='r-label'; label.textContent=p.label; el.appendChild(label);
+    const t=document.createElement('table'); t.className='result-table';
+    t.innerHTML='<tr><th>문항</th><th style="text-align:center;">평균</th><th>분포</th></tr>';
+    LIKERT_QS.forEach((q,qi)=>{
+      const vals=rs.map(r=>r[p.id+'_'+q.id]).filter(v=>typeof v==='number');
+      const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+      const disp=avg!==null?avg.toFixed(2):'-';
+      const pct=avg!==null?Math.round((avg-1)/4*100):0;
+      t.innerHTML+=`<tr>
+        <td style="font-size:11px;">${qShort[qi]}</td>
+        <td class="score-cell ${avg!==null?scoreColor(avg):''}">${disp}</td>
+        <td><div class="bar-row"><div class="bar-track"><div class="bar-fill-el" style="width:${pct}%"></div></div><span class="bar-pct">${disp}</span></div></td>
+      </tr>`;
+    });
+    // 주관식 모음
+    const comments=rs.map(r=>r[p.id+'_comment']).filter(c=>c&&c.trim());
+    if(comments.length){
+      t.innerHTML+=`<tr><td colspan="3" style="padding:8px;"><div style="font-size:11px;font-weight:700;color:var(--gray-400);margin-bottom:6px;">자유 응답 (${comments.length}개)</div>${comments.map(c=>`<div style="font-size:12px;color:var(--gray-600);padding:4px 0;border-bottom:0.5px solid var(--gray-100);">"${c}"</div>`).join('')}</td></tr>`;
+    }
+    el.appendChild(t);
+  });
+}
+
+function renderRResponses(el, rs){
+  if(!rs.length){ el.innerHTML='<div class="empty-state">아직 응답이 없습니다.</div>'; return; }
+  [...rs].sort((a,b)=>(b.submittedAt||'').localeCompare(a.submittedAt||'')).forEach((r,i)=>{
+    const item=document.createElement('div'); item.className='resp-item';
+    const date=r.submittedAt?new Date(r.submittedAt).toLocaleString('ko-KR'):'-';
+    let scores='';
+    PUSHES.forEach(p=>{
+      const avg=LIKERT_QS.map(q=>r[p.id+'_'+q.id]).filter(v=>typeof v==='number');
+      const a=avg.length?(avg.reduce((x,y)=>x+y,0)/avg.length).toFixed(1):'-';
+      scores+=`<span style="font-size:11px;padding:2px 6px;border-radius:4px;background:var(--gray-100);margin:2px;">${p.label.slice(0,4)} ${a}</span>`;
+    });
+    item.innerHTML=`
+      <div class="resp-meta">
+        <strong>#${rs.length-i}</strong>
+        <span style="font-size:11px;color:var(--gray-400);">${date}</span>
+        ${r.firstName?`<span style="font-size:11px;padding:2px 8px;border-radius:99px;background:#FFE5F3;color:var(--zigzag);">${r.firstName}님</span>`:''}
+      </div>
+      <div class="resp-detail" style="display:flex;flex-wrap:wrap;gap:4px;">${scores}</div>`;
+    el.appendChild(item);
+  });
+}
+</script>
+</body>
+</html>
