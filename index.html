@@ -103,8 +103,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:
 
 /* 아이폰 알림 */
 .notif-wrap{display:flex;justify-content:center;margin-bottom:1.5rem;}
-.notif-card{width:100%;max-width:340px;background:rgba(245,245,245,0.95);border-radius:16px;padding:14px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
-.notif-content{width:100%;}
+.notif-card{width:100%;max-width:340px;background:rgba(245,245,245,0.95);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
+.notif-app-icon{width:36px;height:36px;border-radius:8px;background:var(--zigzag);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+.notif-content{flex:1;min-width:0;}
 .notif-title{font-size:13px;font-weight:700;color:#1A1917;margin-bottom:3px;line-height:1.35;}
 .notif-body{font-size:12px;color:#3A3937;line-height:1.5;margin-bottom:3px;}
 .notif-unsub{font-size:12px;color:#9E9E9E;}
@@ -535,6 +536,7 @@ function renderEval(){
   const nWrap = document.createElement('div'); nWrap.className='notif-wrap';
   const nCard = document.createElement('div'); nCard.className='notif-card';
   nCard.innerHTML=`
+    <div class="notif-app-icon">Z</div>
     <div class="notif-content">
       <div class="notif-title">${applName(push.title, userName)}</div>
       <div class="notif-body">${applName(push.body, userName)}</div>
@@ -583,12 +585,13 @@ async function submitSurvey(){
   // 번호 prefix로 필드 순서 보장
   const Q_KEYS = ['trust','honest','discomfort','care','tone','brand','click','visit','info','decision'];
   const Q_NUMS = {trust:'01',honest:'02',discomfort:'03',care:'04',tone:'05',brand:'06',click:'07',visit:'08',info:'09',decision:'10'};
+  const Q_CAT = {trust:'신뢰성',honest:'신뢰성',discomfort:'사용자감정',care:'사용자감정',tone:'브랜드일관성',brand:'브랜드일관성',click:'클릭의도',visit:'클릭의도',info:'지각된유용성',decision:'지각된유용성'};
   const P_NUMS = {p1:'01',p2:'02',p3:'03',p4:'04',p5:'05',p6:'06',p7:'07',p8:'08'};
   const P_LABELS = {p1:'장바구니쿠폰',p2:'데님추천',p3:'즐겨찾기신상',p4:'브랜드위크',p5:'쿠폰만료',p6:'리뷰요청',p7:'구매확정',p8:'출석체크'};
 
   const payload = {
     '00_submittedAt': new Date().toISOString(),
-    '00_name': firstName(userName),
+    '00_name': userName,
   };
 
   PUSHES.forEach((p,i)=>{
@@ -597,7 +600,7 @@ async function submitSurvey(){
     const pl = P_LABELS[p.id];
     Q_KEYS.forEach(qk=>{
       const qn = Q_NUMS[qk];
-      payload[`${pn}_${pl}_${qn}_${qk}`] = ans[qk];
+      payload[`${pn}_${pl}_${qn}_${Q_CAT[qk]}_${qk}`] = ans[qk];
     });
     if(ans.comment) payload[`${pn}_${pl}_11_comment`] = ans.comment;
   });
