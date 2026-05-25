@@ -335,19 +335,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:
 
 <script>
 // ── Firebase ────────────────────────────────────────────
-const FB_API_KEY   = 'AIzaSyDmCVLqRdQoQzZVlX6guwWjajDdTtmQ4j0';
-const FB_PROJECT   = 'push-survey2';
+const FB_API_KEY   = 'AIzaSyCE-DmDILbQMIpf96miB0p8fUlezpvcLg0';
+const FB_PROJECT   = 'final-5b234';
 const FB_COL       = 'zigzag_survey';
 const RESEARCHER_PW = '1234';
 
 let _db = null;
 async function getDb(){
   if(_db) return _db;
-  const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-  const { getFirestore, collection, addDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js');
+  const { getFirestore, collection, addDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
   const app = getApps().length ? getApps()[0] : initializeApp({
     apiKey: FB_API_KEY, projectId: FB_PROJECT,
-    authDomain: FB_PROJECT+'.firebaseapp.com'
+    authDomain: 'final-5b234.firebaseapp.com'
   });
   _db = { fs: getFirestore(app), collection, addDoc, getDocs };
   return _db;
