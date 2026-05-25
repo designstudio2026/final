@@ -103,7 +103,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:
 
 /* 아이폰 알림 */
 .notif-wrap{display:flex;justify-content:center;margin-bottom:1.5rem;}
-.notif-card{width:100%;max-width:340px;background:rgba(245,245,245,0.95);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
+.notif-card{width:100%;max-width:340px;background:rgba(245,245,245,0.95);border-radius:16px;padding:12px 14px;display:flex;flex-direction:row;gap:10px;align-items:flex-start;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
 .notif-app-icon{width:36px;height:36px;border-radius:8px;background:var(--zigzag);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
 .notif-content{flex:1;min-width:0;}
 .notif-title{font-size:13px;font-weight:700;color:#1A1917;margin-bottom:3px;line-height:1.35;}
@@ -534,7 +534,7 @@ function renderEval(){
 
   // 알림 카드
   const nWrap = document.createElement('div'); nWrap.className='notif-wrap';
-  const nCard = document.createElement('div'); nCard.className='notif-card';
+  const nCard = document.createElement('div'); nCard.className='notif-card'; nCard.style.cssText='display:flex;flex-direction:row;gap:10px;align-items:flex-start;';
   nCard.innerHTML=`
     <div class="notif-app-icon">Z</div>
     <div class="notif-content">
