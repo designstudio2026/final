@@ -256,8 +256,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:
       <div class="input-hint">성을 제외한 이름만 입력해 주세요. 예) 길동</div>
     </div>
     <div class="nav-row">
-      <button class="btn-back" onclick="showPage('page-brand')">← 이전</button>
-      <button class="btn-next" id="btn-name-next" onclick="goToSurvey()" disabled>시작하기</button>
+      <button class="btn-secondary" onclick="showPage('page-brand')" style="flex:1;padding:14px;font-size:15px;font-weight:700;border-radius:12px;">← 이전</button>
+      <button class="btn-next" id="btn-name-next" onclick="goToSurvey()" disabled style="flex:1;padding:14px;">시작하기</button>
     </div>
   </div>
 </div>
@@ -287,7 +287,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--gray-50);min-height:
     <div class="done-wrap">
       <div class="done-icon">🎉</div>
       <div class="done-title">설문이 완료됐어요!</div>
-      <div class="done-sub">소중한 응답 감사드립니다.<br></div>
+      <div class="done-sub">소중한 응답 감사드립니다.<br>응답 내용은 연구 목적으로만 활용됩니다.</div>
+      <button class="btn-secondary" onclick="showPage('page-cover')" style="margin-top:1.5rem;width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:12px;">처음으로 돌아가기</button>
     </div>
   </div>
 </div>
@@ -579,12 +580,28 @@ function evalNext(){
 
 // ── 제출 ──────────────────────────────────────────────
 async function submitSurvey(){
-  const payload={ submittedAt:new Date().toISOString(), firstName:firstName(userName) };
+  // 번호 prefix로 필드 순서 보장
+  const Q_KEYS = ['trust','honest','discomfort','care','tone','brand','click','visit','info','decision'];
+  const Q_NUMS = {trust:'01',honest:'02',discomfort:'03',care:'04',tone:'05',brand:'06',click:'07',visit:'08',info:'09',decision:'10'};
+  const P_NUMS = {p1:'01',p2:'02',p3:'03',p4:'04',p5:'05',p6:'06',p7:'07',p8:'08'};
+  const P_LABELS = {p1:'장바구니쿠폰',p2:'데님추천',p3:'즐겨찾기신상',p4:'브랜드위크',p5:'쿠폰만료',p6:'리뷰요청',p7:'구매확정',p8:'출석체크'};
+
+  const payload = {
+    '00_submittedAt': new Date().toISOString(),
+    '00_name': firstName(userName),
+  };
+
   PUSHES.forEach((p,i)=>{
-    const ans=answers[i];
-    LIKERT_QS.forEach(q=>{ payload[p.id+'_'+q.id]=ans[q.id]; });
-    payload[p.id+'_comment']=ans.comment||'';
+    const ans = answers[i];
+    const pn = P_NUMS[p.id];
+    const pl = P_LABELS[p.id];
+    Q_KEYS.forEach(qk=>{
+      const qn = Q_NUMS[qk];
+      payload[`${pn}_${pl}_${qn}_${qk}`] = ans[qk];
+    });
+    if(ans.comment) payload[`${pn}_${pl}_11_comment`] = ans.comment;
   });
+
   await fbSave(payload);
   showPage('page-done');
 }
@@ -636,29 +653,68 @@ function renderResearcher(){
 
 function renderROverview(el, rs){
   if(!rs.length){ el.innerHTML='<div class="empty-state">아직 응답이 없습니다.</div>'; return; }
-  const qShort=['신뢰','과장없음','불편↓','배려','톤일관','브랜드','클릭','방문','정보','결정'];
+  const Q_KEYS = ['trust','honest','discomfort','care','tone','brand','click','visit','info','decision'];
+  const Q_NUMS = {trust:'01',honest:'02',discomfort:'03',care:'04',tone:'05',brand:'06',click:'07',visit:'08',info:'09',decision:'10'};
+  const P_NUMS = {p1:'01',p2:'02',p3:'03',p4:'04',p5:'05',p6:'06',p7:'07',p8:'08'};
+  const P_LABELS = {p1:'장바구니쿠폰',p2:'데님추천',p3:'즐겨찾기신상',p4:'브랜드위크',p5:'쿠폰만료',p6:'리뷰요청',p7:'구매확정',p8:'출석체크'};
+  const qShort=['신뢰','과장없음','불편↓','배려','톤일관','브랜드부합','클릭의도','방문의도','정보도움','결정도움'];
+  const qFull=[
+    '신뢰할만 하다','과장되지 않는다','감정적 불편함↓','나를 배려한다',
+    '톤이 일관된다','브랜드 이미지와 부합','클릭해보고 싶다','앱을 방문하고 싶다',
+    '제품 이해에 도움','구매 결정에 도움'
+  ];
 
   PUSHES.forEach(p=>{
-    const label=document.createElement('div'); label.className='r-label'; label.textContent=p.label; el.appendChild(label);
+    const pn = P_NUMS[p.id];
+    const pl = P_LABELS[p.id];
+    const label=document.createElement('div'); label.className='r-label';
+    label.textContent=`${pn}. ${p.label}`; el.appendChild(label);
     const t=document.createElement('table'); t.className='result-table';
-    t.innerHTML='<tr><th>문항</th><th style="text-align:center;">평균</th><th>분포</th></tr>';
-    LIKERT_QS.forEach((q,qi)=>{
-      const vals=rs.map(r=>r[p.id+'_'+q.id]).filter(v=>typeof v==='number');
+    t.innerHTML='<tr><th>번호</th><th>문항</th><th style="text-align:center;">평균</th><th>분포</th></tr>';
+    Q_KEYS.forEach((qk,qi)=>{
+      const qn = Q_NUMS[qk];
+      // 새 넘버링 키 우선, 없으면 구버전 키로 fallback
+      const newKey = `${pn}_${pl}_${qn}_${qk}`;
+      const oldKey = `${p.id}_${qk}`;
+      const vals=rs.map(r=>{
+        const v = r[newKey]!==undefined ? r[newKey] : r[oldKey];
+        return typeof v==='number'?v:null;
+      }).filter(v=>v!==null);
       const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):null;
       const disp=avg!==null?avg.toFixed(2):'-';
       const pct=avg!==null?Math.round((avg-1)/4*100):0;
+      const sc = avg!==null?scoreColor(avg):'';
       t.innerHTML+=`<tr>
-        <td style="font-size:11px;">${qShort[qi]}</td>
-        <td class="score-cell ${avg!==null?scoreColor(avg):''}">${disp}</td>
-        <td><div class="bar-row"><div class="bar-track"><div class="bar-fill-el" style="width:${pct}%"></div></div><span class="bar-pct">${disp}</span></div></td>
+        <td style="font-size:11px;color:var(--gray-400);white-space:nowrap;">${qn}</td>
+        <td style="font-size:12px;">${qFull[qi]}</td>
+        <td class="score-cell ${sc}">${disp}</td>
+        <td style="min-width:120px;"><div class="bar-row"><div class="bar-track"><div class="bar-fill-el" style="width:${pct}%"></div></div><span class="bar-pct">${disp}</span></div></td>
       </tr>`;
     });
-    // 주관식 모음
-    const comments=rs.map(r=>r[p.id+'_comment']).filter(c=>c&&c.trim());
+    // 종합 평균
+    const allVals=Q_KEYS.map((qk,qi)=>{
+      const qn=Q_NUMS[qk]; const newKey=`${pn}_${pl}_${qn}_${qk}`; const oldKey=`${p.id}_${qk}`;
+      return rs.map(r=>{ const v=r[newKey]!==undefined?r[newKey]:r[oldKey]; return typeof v==='number'?v:null; }).filter(v=>v!==null);
+    }).flat();
+    const totalAvg=allVals.length?(allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2):'-';
+    t.innerHTML+=`<tr style="border-top:1px solid var(--gray-200);">
+      <td colspan="2" style="font-size:12px;font-weight:700;padding:8px;">종합 평균</td>
+      <td class="score-cell ${totalAvg!=='-'?scoreColor(parseFloat(totalAvg)):''}" style="font-weight:700;">${totalAvg}</td>
+      <td></td>
+    </tr>`;
+    // 주관식
+    const comments=rs.map(r=>{
+      const newKey=`${pn}_${pl}_11_comment`; const oldKey=`${p.id}_comment`;
+      return r[newKey]||r[oldKey]||'';
+    }).filter(c=>c&&c.trim());
     if(comments.length){
-      t.innerHTML+=`<tr><td colspan="3" style="padding:8px;"><div style="font-size:11px;font-weight:700;color:var(--gray-400);margin-bottom:6px;">자유 응답 (${comments.length}개)</div>${comments.map(c=>`<div style="font-size:12px;color:var(--gray-600);padding:4px 0;border-bottom:0.5px solid var(--gray-100);">"${c}"</div>`).join('')}</td></tr>`;
+      t.innerHTML+=`<tr><td colspan="4" style="padding:8px 6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin-bottom:6px;">💬 자유 응답 (${comments.length}개)</div>
+        ${comments.map(c=>`<div style="font-size:12px;color:var(--gray-600);padding:5px 0;border-bottom:0.5px solid var(--gray-100);">"${c}"</div>`).join('')}
+      </td></tr>`;
     }
     el.appendChild(t);
+    el.appendChild(Object.assign(document.createElement('div'),{style:'height:16px'}));
   });
 }
 
